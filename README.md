@@ -1,93 +1,182 @@
-# spring-pet-clinic-xavier
+![Spring boot](./spring.png)
 
+# Pet Clinic
 
+## 0 - mise en place
 
-## Getting started
+Faire un fork du projet pet-clinic (voir avec le formateur).
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+Changer le nom du projet en `spring-pet-clinic-<votre_nom>` et n'oubliez pas de sélectionner le bon namespace (votre numéro de POEI + spring => zenika-academy/zacademy-promo-09/spring).
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+Installez un client HTTP sur votre poste:
 
-## Add your files
+- Installez postman sur vos postes <https://www.postman.com/downloads/>
+- Installez insomnia sur vos postes <https://insomnia.rest/>
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+## 1 - Créez les requêtes HTTP
+
+En inspectant le code récupéré, essayez de:
+
+- Ajouter des cliniques
+- Récupérer les cliniques créées
+
+## 2 - Ajoutez un logger dans PetClinicController
+
+- Un logger avec `slf4j` dans une application `Spring boot` s'ajoute comme suit :
+
+```java
+private static final Logger logger = LoggerFactory.getLogger(ECRIRE_ICI_LA_CLASSE_DANS_LAQUELLE_LE_LOGGER_EST_AJOUTé.class);
+```
+
+Dans le controller:
+
+- Ajoutez un log sur la création d'une clinique
+
+Appelez le endpoint via votre **client HTTP**:
+
+- Vérifiez que le log apparaît dans la console
+- Regardez toutes les informations ajoutées
+
+Comparez avec la sortie d'un `System.out.println`, et se promettre à soi-même qu'on ne l'utilisera plus ! ;)
+
+Ajouter une méthode toString() à la classe `PetClinicDto`
+Ajoutez dans le log, l'objet `PetClinicDto` de la façon suivante:
+
+```java
+logger.info("un texte bien choisi et explicatif. Auquel on peut ajouter un objet {}", monObjetQueJeVeuxLog);
+```
+
+Dans la suite, pour mieux comprendre ce qu'il se passe dans l'application, penser à **ajouter des logs**. Et si vous avez un souci, passez en mode **debug**.
+
+## 3 - Ajoutez un identifiant technique à PetClinic
+
+Ajoutez un nouvel attribut `id` à l'objet PetClinic. Cette identifiant doit être géré lors de la création d'une clinique. (Pas insérable / modifiable par l'utilisateur)
+
+Astuce pour obtenir un id entier, supérieur à tous ceux déjà dans notre liste petClinicDtoList
+
+```java
+    private int getNextId() {
+        final int nextId;
+        if (petClinicDtoList.isEmpty()) {
+            nextId = 1;
+        } else {
+            nextId = Collections.max(petClinicDtoList.stream()
+                        .map(PetClinicDto::getId).toList()) + 1;
+        }
+        return nextId;
+    }
+```
+
+Retournez comme réponse à la création d'une clinique, l'identifiant généré.
+
+## 4 - Faire un découpage en couche
+
+- Créez le package `service`
+- Ajoutez un nouveau service pour `petClinicService`
+- Utilisez l'injection de dépendance pour injecter le service `petClinicService` dans la couche controller `petClinicController`
+- Déplacez la liste de `petClinic` dans la **couche service**
+- Utilisez l'annotation `@Service`, plutôt que `@Component`
+
+## 5 - Utilisez des objets différents dans la couche controller et service
+
+- Créez une classe `PetClinic` (non suffixé par Dto), avec les mêmes attributs de `PetClinicDto`
+- Créez une classe `PetClinicMapper`, faire de cette classe un bean (@Component)
+- Y ajouter une méthode `petClinicDtoToPetClinic` qui prend un `petClinicDto`, et qui retourne un `PetClinic` dans lequel on a copié la valeur de tous les attributs
+- Y ajouter une méthode `petClinicToPetClinicDto` qui fait l'opération inverse `PetClinic` -> `petClinicDto`
+- Injectez ce bean `PetClinicMapper` dans le controller, et convertir les `PetClinicDto` en `PetClinic` avant de les donner au service
+- Modifiez le service pour n'utiliser que des `PetClinic`
+
+## 6 - Implémentez un CRUD complet de PetClinic
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/zenika-academy/zacademy-promo-09/spring/spring-pet-clinic-xavier.git
-git branch -M main
-git push -uf origin main
+    GET /pet-clinics -- extraction de tous les cliniques. (déjà implémenté)
+    GET /pet-clinics/1 -- extraction de la clinique ayant l'identifiant 1.
+    DELETE /pet-clinics/1 -- suppression de la clinique 1.
+    POST /pet-clinics -- création d'une nouvelle clinique. (déjà implémenté)
+    PUT /pet-clinics/1 -- mise à jour de la clinique 1.
 ```
 
-## Integrate with your tools
+Annotations nécessaires :
 
-- [ ] [Set up project integrations](https://gitlab.com/zenika-academy/zacademy-promo-09/spring/spring-pet-clinic-xavier/-/settings/integrations)
+- @GetMapping, @DeleteMapping, @PostMapping, @PutMapping
+- @PathVariable
+- @RequestBody
 
-## Collaborate with your team
+## 8 - Choisir les codes HTTP que l'on souhaite retourner
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+Dans un **RestController**, en faisant retourner un `ResponseEntity<UnObjet>`, plutôt que simplement `UnObjet`, on peut choisir le **code HTTP retourné**.
 
-## Test and Deploy
+Exemple pour la méthode pour créer une clinique :
 
-Use the built-in continuous integration in GitLab.
+Le code HTTP de retour après la création d'une ressource est 201 (CREATED). Pour retourner un tel code http, utiliser le code java suivant :
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+```java
+ResponseEntity.status(HttpStatus.CREATED).body(id);
+```
 
-***
+## 9 - Le métier veut des règles de gestion
 
-# Editing this README
+Le métier ne veut **plus de clinique avec le même nom**
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+- Implémentez cette règle de gestion
+- Retournez un code http 400 (BAD REQUEST) dans le cas d'un ajout de clinique avec un nom existant
 
-## Suggestions for a good README
+## 10 - On souhaite ajouter une nouvelle ressource owner (= propriétaire)
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+- Créez un nouveau controller `OwnerController` sur le path `/owners`
+- Créez des classes `OwnerDto` et `Owner`, ayant des attributs name, id et petClinicId, pour les couches controller et service
+- Créez une classe `OwnerMapper` avec 2 méthodes pour convertir de `OwnerDto` en `Owner` et inversement
+- Ajoutez un service, ayant un attribut `ownerList` pour stocker ces propriétaires
+- Implémentez un CRUD en REST dans le `OwnerController`
+- Le métier veut une nouvelle règle de gestion ... Le `petClinicId` du owner doit correspondre à une **clinique qui existe**.
 
-## Name
-Choose a self-explaining name for your project.
+## 11 - On souhaite retourner lors des lectures (GET) des cliniques également leurs propriétaires
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+- Ajoutez un attribut `ownerList` à la classe `PetClinicCto`
+- Dans le `PetClinicController`, valoriser cet attribut `ownerList`, en récupérant les **owner de la clinique**
+- Valorisez cet attribut avec la liste des propriétaires de la clinique
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+## 12 - Suite "Le métier ne veut pas de propriétaire dont la clinique n'existe pas"
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+Avez-vous pensé à supprimer les propriétaires lors de la suppression d'une clinique ? :O
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+## 13 - Sur le endpoint qui retourne toutes les cliniques, on souhaite pouvoir faire de l'auto-complétion sur le nom
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+Proposez la possibilité (facultative) d'ajouter un queryParam `nameAutocomplete` sur le GET qui retourne la liste des cliniques.
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+La présence de ce `nameAutocomplete`, ne retourne que les cliniques dont le nom commence par la valeur passée dans ce paramètre.
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+Information pour gérer les `queryParam`: <https://www.baeldung.com/spring-request-param>
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+## 14 - Ajoutez une contrainte pour ne plus accepter de clinique avec un nom vide
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+Grâce à la librairie `hibernate-validator` (à ajouter dans les dépendances dans le pom.xml), on souhaite ne plus accepter de clinique avec un nom vide.
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+Faire des recherches sur l'utilisation de cette librairie pour avoir cette contrainte.
+<https://hibernate.org/validator/>
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+## 15 - On souhaite gérer des retours en erreur client 4xx
 
-## License
-For open source projects, say how it is licensed.
+Choisir la solution "Solution 4: ResponseStatusException (Spring 5 and Above)" du lien suivant :
+<https://www.baeldung.com/exception-handling-for-rest-with-spring#responsestatusexception>
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+Utiliser cette manière de faire pour retourner :
+
+- un code HTTP 404 si le endpoint `GET /pet-clinics/1` correspond à un id qui n'existe pas
+- un code HTTP 400 si le endpoint `PUT /pet-clinics/1` correspond à un id qui n'existe pas (une ressource ne sera modifiable que s'elle a été créée précédemment)
+
+## 16 - On souhaite log le temps d'exécution du traitement de la requête de création d'une clinique
+
+- Dans le controller `PetClinicController`, ajouter un log qui mesure le temps de traitement de la création d'une clinique en milliseconde
+- Exemple souhaité dans les logs : `La création de la clinique a duré 10ms`
+
+### BONUS : test d'intégration
+
+Ajoutez les tests pour les différentes ressources.
+
+### BONUS : utiliser Spring AOP
+
+Warning : beaucoup de recherches google vont être nécessaires
+
+- utilisez spring-boot-starter-aop pour ajouter un log "request received" avant tout appel à une méthode d'un de nos controller
+- utilisez spring-boot-starter-aop pour ajouter un log qui mesure le temps d'exécution de tous les appels reçus à nos controllers
