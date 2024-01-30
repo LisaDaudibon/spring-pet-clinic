@@ -6,7 +6,8 @@ public class PetClinicDto {
 
     private int id;
 
-    public PetClinicDto(String name) {
+    public PetClinicDto(int id, String name) {
+        this.id = id;
         this.name = name;
     }
     public PetClinicDto() {}
@@ -27,6 +28,5 @@ public class PetClinicDto {
     public String toString() {
         return name ;
     }
-
 
 }
