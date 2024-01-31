@@ -1,13 +1,12 @@
 package com.zenika.academy.poeirest.controller.dto;
 
 import com.zenika.academy.poeirest.service.model.PetClinic;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class PetClinicMapper {
 
-    public PetClinic getPetClinicDToPetClinic (PetClinicDto from) {
+    public PetClinic getPetClinicDtoToPetClinic(PetClinicDto from) {
         return new PetClinic(from.getId(), from.getName());
     }
 
