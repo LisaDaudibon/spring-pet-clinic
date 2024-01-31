@@ -35,4 +35,20 @@ public class OwnerService {
         }
         return null;
     }
+
+    public Owner add(Owner owner) throws NullPointerException {
+        int nextId = this.getNextId(); // Use the getNextId method to get the next available ID
+
+        // Set the ID for the Owner
+        owner.setId(nextId);
+
+//        for (PetClinic currentPetClinic : petClinics) {
+//            if (isPetClinicExists(petClinic, currentPetClinic)){
+//                throw new NullPointerException();
+//            }
+//        }
+
+        owners.add(owner);
+        return owner;
+    }
 }

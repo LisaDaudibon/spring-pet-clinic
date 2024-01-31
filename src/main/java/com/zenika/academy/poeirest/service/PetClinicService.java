@@ -45,27 +45,24 @@ public class PetClinicService {
         return null;
     }
 
-    private static boolean isPetClinicExists(PetClinic petClinic, PetClinic currentPetClinic) {
-        return currentPetClinic.getName().equals(petClinic.getName());
+    private static boolean isPetClinicExists(PetClinic newPetClinic, PetClinic currentPetClinic) {
+        return currentPetClinic.getName().equals(newPetClinic.getName());
     }
 
-    public PetClinic add(PetClinic petClinic) throws NullPointerException {
-        int nextId = this.getNextId(); // Use the getNextId method to get the next available ID
-        PetClinic petClinicAdded;
-        String message = "Il existe déjà une clinique avec ce nom là";
+    public PetClinic add(PetClinic newPetClinic) throws NullPointerException {
+        int nextId = this.getNextId();
 
         // Set the ID for the PetClinicDto
-        petClinic.setId(nextId);
-
+        newPetClinic.setId(nextId);
 
         for (PetClinic currentPetClinic : petClinics) {
-            if (isPetClinicExists(petClinic, currentPetClinic)){
+            if (isPetClinicExists(newPetClinic, currentPetClinic)){
                 throw new NullPointerException();
             }
         }
 
-        petClinics.add(petClinic);
-        return petClinic;
+        petClinics.add(newPetClinic);
+        return newPetClinic;
     }
 
     public void deleteById(int searchedId) {
@@ -88,5 +85,4 @@ public class PetClinicService {
             }
         }
     }
-
 }
