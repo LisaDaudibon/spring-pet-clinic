@@ -36,14 +36,14 @@ public class OwnerController {
 
     @PostMapping
     public ResponseEntity<OwnerDto> addPetClinic(@RequestBody OwnerDto ownerDto) {
-//        try {
+        try {
             logger.info(String.format("Add an owner %s", ownerDto.getName()));
             Owner ownerAdded = ownerService.add(ownerMapper.ownerDtoToOwner(ownerDto));
             OwnerDto ownerDtoAdded = ownerMapper.ownerToOwnerDto(ownerAdded);
             return ResponseEntity.status(HttpStatus.CREATED).body(ownerDtoAdded);
-//        } catch (NullPointerException nullPointerException) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-//        }
+        } catch (NullPointerException nullPointerException) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
     }
 //
     @GetMapping("/{id}")
@@ -57,22 +57,22 @@ public class OwnerController {
 
         return null;
     }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteById(@PathVariable("id") int id) {
+        logger.info("Suppression de la clinique vétérinaire avec l'id" + id);
+        this.ownerService.deleteById(id);
+    }
 //
-//    @DeleteMapping("/{id}")
-//    @ResponseStatus(HttpStatus.OK)
-//    public void deleteById(@PathVariable("id") int id) {
-//        logger.info("Suppression de la clinique vétérinaire avec l'id" + id);
-//        this.petClinicService.deleteById(id);
-//    }
-//
-//    @PutMapping("/{id}")
-//    public ResponseEntity<Void> updateById(@PathVariable("id") int id, @RequestBody PetClinicDto petClinicDto) {
-//        try {
-//            logger.info("Mise à jour de la clinique vétérinaire avec l'id" + id);
-//            this.petClinicService.updateById(id, petClinicMapper.getPetClinicDtoToPetClinic(petClinicDto));
-//            return ResponseEntity.status(HttpStatus.CREATED).build();
-//        } catch (NullPointerException nullPointerException) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-//        }
-//    }
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> updateById(@PathVariable("id") int id, @RequestBody OwnerDto ownerDto) {
+        try {
+            logger.info("Mise à jour de la clinique vétérinaire avec l'id" + id);
+            this.ownerService.updateById(id, ownerMapper.ownerDtoToOwner(ownerDto));
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        } catch (NullPointerException nullPointerException) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
 }
