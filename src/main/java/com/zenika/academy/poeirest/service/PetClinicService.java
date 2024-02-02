@@ -45,8 +45,8 @@ public class PetClinicService {
         return null;
     }
 
-    private static boolean isPetClinicExists(PetClinic newPetClinic, PetClinic currentPetClinic) {
-        return currentPetClinic.getName().equals(newPetClinic.getName());
+    private boolean isPetClinicExists(String newPetClinic) {
+        return petClinics.stream().anyMatch(petClinic -> petClinic.getName().contentEquals(newPetClinic));
     }
 
     public PetClinic add(PetClinic newPetClinic) throws NullPointerException {
@@ -55,10 +55,9 @@ public class PetClinicService {
         // Set the ID for the PetClinicDto
         newPetClinic.setId(nextId);
 
-        for (PetClinic currentPetClinic : petClinics) {
-            if (isPetClinicExists(newPetClinic, currentPetClinic)){
-                throw new NullPointerException();
-            }
+
+        if (isPetClinicExists(newPetClinic.getName())){
+            throw new NullPointerException(String.format("A pet clinic with name %s already exists", newPetClinic.getName()));
         }
 
         petClinics.add(newPetClinic);
@@ -74,15 +73,18 @@ public class PetClinicService {
         }
     }
 
-    public void updateById(int searchedId, PetClinic newPetClinic) throws NullPointerException {
-        for (PetClinic petClinic : petClinics) {
-            if (isPetClinicExists(petClinic, newPetClinic)){
-                throw new NullPointerException();
-            }
-            else if (petClinic.getId() == searchedId) {
-                petClinic.setName(newPetClinic.getName());
-                return;
-            }
+    public PetClinic updateById(int searchedId, PetClinic petClinicUpdated) throws Exception {
+        List <PetClinic> petClinics = findAll();
+
+        if (petClinics.isEmpty()) {
+            throw new Exception(String.format("A pet clinic with name %s already exists", petClinicUpdated.getName()));
         }
+
+        PetClinic petClinicFound = getById(searchedId);
+        if (Objects.nonNull(petClinicFound)) {
+            petClinicFound.setName(petClinicUpdated.getName());
+        }
+
+        return petClinicFound;
     }
 }
