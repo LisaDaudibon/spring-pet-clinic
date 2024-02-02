@@ -47,6 +47,18 @@ public class OwnerService {
         return Objects.equals(newOwner.getPetClinicId(), currentPetClinic.getId());
     }
 
+    public List<Owner> findAllOwnersByPetClinic(int serchedPetClinicId) {
+        List<Owner> results = new ArrayList<>();
+
+        for (Owner owner: owners){
+            if( serchedPetClinicId == owner.getPetClinicId()){
+                results.add(owner);
+            }
+        }
+
+        return results;
+    }
+
     public Owner add(Owner newOwner) throws NullPointerException {
         int nextId = this.getNextId(); // Use the getNextId method to get the next available ID
         List<PetClinic> petClinics = new ArrayList<>();
@@ -80,6 +92,13 @@ public class OwnerService {
             } else {
                 throw new NullPointerException();
             }
+        }
+    }
+
+    public void deleteAllByPetClinicId(int searchedPetClinicId) {
+        List<Owner> petClinicOwners = findAllOwnersByPetClinic(searchedPetClinicId);
+        for (Owner owner : petClinicOwners) {
+            deleteById(owner.getId());
         }
     }
 }

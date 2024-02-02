@@ -4,7 +4,6 @@ public class OwnerDto {
     String name;
     int id;
     int petClinicId;
-
     public OwnerDto (){
 
     }
